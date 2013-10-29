@@ -4,18 +4,31 @@ using System.Collections;
 public class Detector : MonoBehaviour
 {
 
-	public GUIStyle menuStyle;
-	public Transform target; //checks if the player is visible and nothing is blocking the view
+	public GUIText main_gui_text;
+	private GameObject player;
 	
 	void Start ()
 	{
+		player = GameObject.FindGameObjectWithTag ("Player");
+		if(player.rigidbody == null) {
+			Debug.LogWarning("Wtf missä");
+		}
+		if(main_gui_text == null) {
+			main_gui_text = (GUIText) GameObject.FindObjectOfType(typeof(GUIText));
+		}
+		main_gui_text.text = "";
 	}
 	
 	void Update ()
 	{
 		if (CanSeePlayer ()) {
-			Debug.LogWarning("PLAYER WAS SEEN");
-			// WaitAndLoadLevel(2.0f);
+			main_gui_text.text = "Player Seen!";
+			if(player.rigidbody.velocity.magnitude > 0.1f)
+			{
+				main_gui_text.text = "Player seen AND moving";
+			}
+		} else {
+			main_gui_text.text = "";
 		}
 	}
 	
@@ -24,7 +37,6 @@ public class Detector : MonoBehaviour
 	//			player.collider.bounds.Contains (hit.transform.position) doesn't seem to be doing the trick :(
 	bool CanSeePlayer ()
 	{
-		GameObject player = GameObject.FindGameObjectWithTag ("Player");
 		Vector3 viewPos = CameraManger.getActiveCamera().WorldToViewportPoint(player.transform.position);
 		Vector3 here = CameraManger.getActiveCamera().transform.position;
 		Vector3 pos = player.transform.position;
@@ -47,16 +59,10 @@ public class Detector : MonoBehaviour
 		}
 	}
 	
-	void LoadGui ()
-	{
-		GUI.Label (new Rect (Screen.width / 2 - 200, Screen.height / 2 - 100, 1000, 50), "Camera spotted you!", menuStyle);
-	}
-	
 //	IEnumerator WaitAndLoadLevel (float wait)
 	void WaitAndLoadLevel (float wait)
 	{
-		LoadGui ();
 		//yield return new WaitForSeconds(wait);
-		Application.LoadLevel (Application.loadedLevel);
+//		Application.LoadLevel (Application.loadedLevel);
 	}
 }
